@@ -1,5 +1,13 @@
 public class decode {   
    
+    static int opcode;
+    static int R1;
+    static int R2;
+    static int immediate;
+    static byte R1Val;
+    static byte R2Val;
+
+
 
    public decode(){
 
@@ -7,13 +15,13 @@ public class decode {
 
    public static void Decode(short instrct){
 
-    int opcode = (0b1111000000000000 & instrct) >>> 12;
-    int R1 = (0b0000111111000000 & instrct) >>> 6;
-    int R2 = (0b0000000000111111 & instrct) ;
-    int immediate = (0b0000000000111111 & instrct) ;
-    byte R1Val = memory.Registers[R1]; 
-    byte R2Val = memory.Registers[R2]; 
-
+    opcode = (0b1111000000000000 & instrct) >>> 12;
+    R1 = (0b0000111111000000 & instrct) >>> 6;
+    R2 = (0b0000000000111111 & instrct) ;
+    immediate = (0b0000000000111111 & instrct) ;
+    R1Val = memory.Registers[R1]; 
+    R2Val = memory.Registers[R2]; 
+    System.out.println("Debugging ..");
    } 
 
 }

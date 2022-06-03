@@ -5,6 +5,35 @@ public class parser{
    //Register 64 Statuts register
    //Register 65 PC
 
+
+    public static int iCounter = 0;
+
+    public static short signedtoUnsign(String number)
+    {
+      String result = "";
+      short out = 0;
+      if(number.charAt(0) == '1'){
+        //negative number
+        for(int i = 0 ; i < number.length() ; i++)
+        {
+          if(number.charAt(i) == '1')
+          {
+            result = result + '0';
+          }
+          else{
+            result = result + '1';
+          }
+          out = Short.parseShort(result,2);
+          out *= -1;
+          out--;
+        }}
+      else{
+        //positive
+          out = Short.parseShort(number,2);
+      }
+      return out;
+    }
+
 public parser(){
 
 }
@@ -109,9 +138,8 @@ public parser(){
  
 
     public static void parse(){
-    //Universal path
+    //Universal path ==> Insert the path here
     String path = "program.txt"; 
-    int iCounter = 0;
     try{
     String line = "";
     FileReader fr = new FileReader(path);
@@ -138,7 +166,7 @@ public parser(){
            } 
         }
 
-        byte res = (byte) (Integer.parseInt(result,2));
+        short res = signedtoUnsign(result);
 
         memory.Imemory[iCounter] = res;
         iCounter++;

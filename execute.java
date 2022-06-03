@@ -4,45 +4,45 @@ public class execute{
 
     }
 
-    public static void Execute(byte opCode, int A , int B)
+    public static void Execute(byte opCode, int val1 , int val2, int R1 , int R2, int immediate)
     {
         switch(opCode)
         {
             case 0:
-            add((byte)A, (byte)B);
+            add(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 1:
-            sub((byte)A, (byte)B);
+            sub(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 2:
-            mul((byte)A, (byte)B);
+            mul(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 3:
-            ldi(A, (byte)B);
+            ldi(opCode, val1 , val2,R1 , R2, immediate);
             break;
             case 4:
-            beqz((byte)A, (byte)B);
+            beqz(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 5:
-            and((byte)A, (byte)B);
+            and(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 6:
-            or((byte)A, (byte)B);
+            or(opCode, val1 , val2,R1 , R2, immediate);
             break;
             case 7:
-            jr((byte)A, (byte)B);
+            jr(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 8:
-            slc((byte)A, (byte)B);
+            slc(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 9:
-            src((byte)A, (byte)B);
+            src(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 10:
-            lb(A, (byte)B);
+            lb(opCode, val1 , val2, R1 , R2, immediate);
             break;
             case 11:
-            sb(A, (byte)B);
+            sb(opCode, val1 , val2, R1 , R2,immediate);
             break;
         }
 
@@ -63,7 +63,13 @@ public class execute{
        }
        if(opCode == 0)
        {    
-            if(A+B > 255)
+            int op1 = Byte.toUnsignedInt( (byte) A);
+            int op2 = Byte.toUnsignedInt( (byte) B);
+
+            int condition = op1 + op2;             
+            int Case = condition & 0b00000000000000000000000100000000;
+
+            if(Case == 512)
             {
             SREG = SREG.substring(0,3) + "1" + SREG.substring(4);
             }
@@ -135,105 +141,98 @@ public class execute{
           SREG = SREG.substring(0,6) + s + SREG.substring(7);
        }
 
+        byte result = (byte) Byte.parseByte(SREG,2);
+        memory.Registers[64] = result;
+
    }
 
-   public static void add (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + temp1);
-       byte temp2 = memory.Registers[B-1];
-       byte res = (byte) (temp1 + temp2); 
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + res);
+   public static void add(byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       int res1 =  (val1 + val2); 
+       byte res = (byte) res1;
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
    }
 
-   public static void sub (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + temp1);
-       byte temp2 = memory.Registers[B-1];
-       byte res =(byte)( temp1 - temp2); 
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + res);
+   public static void sub (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res =(byte)( val1 - val2); 
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+R1 + " new Value: " + res);
    }
 
-   public static void mul (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + temp1);
-       byte temp2 = memory.Registers[B-1];
-       byte res =(byte) (temp1 * temp2); 
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + res);
+   public static void mul (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res =(byte) (val1 * val2); 
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
    }
 
-   public static void ldi (int A, byte B){
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       memory.Registers[A-1] = B;
-       System.out.println("Register R"+ A + " new Value: " + B);
+   public static void ldi (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       memory.Registers[R1] = (byte) (immediate+1);
+       System.out.println("Register R"+ R1 + " new Value: " + (immediate+1) );
    }
 
-   public static void beqz (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
+   public static void beqz (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
        System.out.print("PC old Value: " + memory.Registers[65]);
-       if(temp1 == 0){
+       if(val1 == 0){
             memory.Registers[65]++;
-            memory.Registers[65] += B;
+            memory.Registers[65] += (immediate+1);
        }
        System.out.println("PC new Value: " + memory.Registers[65]);
    }
 
-   public static void and (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       byte temp2 = memory.Registers[B-1];
-       byte res = (byte) (temp1 & temp2); 
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + memory.Registers[A-1]);
+   public static void and (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res = (byte) (val1 & val2); 
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
    }
 
-   public static void or (byte A, byte B){
-       byte temp1 = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       byte temp2 = memory.Registers[B-1];
-       byte res = (byte) (temp1 | temp2); 
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + memory.Registers[A-1]);
+   public static void or (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res = (byte) (val1 | val2); 
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
    }
 
-   public static void jr (byte A, byte B){
-       String temp1 = Integer.toBinaryString( (int) memory.Registers[A-1]);
+   public static void jr (byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       String temp1 = Integer.toBinaryString(val1);
        System.out.print("PC old Value: " + memory.Registers[65]);
-       String temp2 = Integer.toBinaryString( (int) memory.Registers[B-1]);
+       String temp2 = Integer.toBinaryString(val2);
        String temp3 = temp1 + temp2;
-       byte decimal = (byte) Integer.parseInt(temp3,2);
+       byte decimal = (byte) Byte.parseByte(temp3,2);
        memory.Registers[65] = decimal;
        System.out.println("PC new Value: " + memory.Registers[65]);
    }
 
-   public static void slc(byte A,byte B){
-       byte temp =   memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       byte res =  (byte) ((temp << B) | (temp >>> (8-B)));
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + memory.Registers[A-1]);
+   public static void slc(byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       byte temp =  (byte) val1;
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res =  (byte) ((temp << (immediate +1)) | (temp >>> (8-(immediate+1))));
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
    }
 
-    public static void src(byte A, byte B){
-       byte temp = memory.Registers[A-1];
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       byte res =  (byte) ((temp >>> B) | (temp << (8-B)));
-       memory.Registers[A-1] = res;
-       System.out.println("Register R"+ A + " new Value: " + memory.Registers[A-1]);
+    public static void src(byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       byte temp = (byte) val1;
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       byte res =  (byte) ((temp >>> immediate) | (temp << (8-immediate)));
+       memory.Registers[R1] = res;
+       System.out.println("Register R"+ R1 + " new Value: " + res);
+   }
+//modified
+   public static void lb(byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("Register R"+ R1 + " old Value: " + val1);
+       memory.Registers[R1] = memory.Dmemory[immediate];
+       System.out.println("Register R"+ R1 + " new Value: " + memory.Dmemory[immediate]);
    }
 
-   public static void lb(int A, byte B){
-       System.out.print("Register R"+ A + " old Value: " + memory.Registers[A-1]);
-       memory.Registers[A-1] = memory.Dmemory[B];
-       System.out.println("Register R"+ A + " new Value: " + memory.Registers[A-1]);
-   }
-
-   public static void sb(int A, byte B){
-       System.out.print("memory location "+ B + " old Value: " + memory.Dmemory[B]);
-        memory.Dmemory[B] = memory.Registers[A-1];
-       System.out.println("memory location "+ B + " new Value: " + memory.Dmemory[B]);
+   public static void sb(byte opCode, int val1 , int val2, int R1 , int R2, int immediate){
+       System.out.print("memory location "+ immediate + " old Value: " + memory.Dmemory[immediate]);
+        memory.Dmemory[immediate] = (byte) val1;
+       System.out.println("memory location "+ immediate + " new Value: " + val1);
    }
 
 
